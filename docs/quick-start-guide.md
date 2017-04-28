@@ -104,19 +104,19 @@ Workflower 支持下边的 BPMN 2.0 工作流元素:
         - 任务
         - 服务任务
         - 发送任务
-    - Events
-        - Start events
-        - End events
-    - Gateways
-        - Exclusive gateways
-- Swimlanes
-    - Lanes
+    - 事件
+        - 开始事件
+        - 结束事件
+    - 网关
+        - 独家网关
+- 泳道
+    - 通道
 
-Please be aware that the unsupported elements in a workflow will be ignored.
+请注意 worflower 不支持的元素将被忽略。
 
-## Designing entities that represent instances of workflow
+## 设计代表工作流实例的数据实体
 
-Design an entity to be persistent representing an instance of a specific workflow (called as a `process` in Workflower) and add it to the application. This entity usually implements `PHPMentors\Workflower\Process\ProcessContextInterface` and `PHPMentors\Workflower\Persistence\WorkflowSerializableInterface`. The associative array returned from `PHPMentors\Workflower\Process\ProcessContextInterface::getProcessData()` is expanded in the conditional expression of the sequence flows in the workflow.
+设计一个数据实体来保存代表一个特定工作流的实例 (在 Workflower 被称作 `process`) and add it to the application. This entity usually implements `PHPMentors\Workflower\Process\ProcessContextInterface` and `PHPMentors\Workflower\Persistence\WorkflowSerializableInterface`. The associative array returned from `PHPMentors\Workflower\Process\ProcessContextInterface::getProcessData()` is expanded in the conditional expression of the sequence flows in the workflow.
 
 It's also a good idea to provide properties that hold a snapshot of some properties of the `Workflow` object according to the need in the application (e.g. querying the database). For example, if your application needs to search the database for processes that remain in a particular activity, add `$currentActivity` to the entity that represents the current activity. An example is shown below:
 
