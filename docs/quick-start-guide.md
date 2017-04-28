@@ -2,7 +2,7 @@
 
 Workflower 是一个 PHP 的 [BPMN 2.0](http://www.omg.org/spec/BPMN/2.0/) 工作流引擎，并且是在 [The BSD 2-Clause 协议](https://opensource.org/licenses/BSD-2-Clause) 下的开源产品. Workerflower 的主要用途在 PHP 程序中管理以人为本的商业流程。
 
-This article shows the work required to manage business processes using Workflower on [Symfony](http://symfony.com/) applications.
+这篇文章用来阐述在 Symfony 程序中使用的 Workflower 管理商业流程所需的工作。
 
 <!-- TOC -->
 
@@ -25,25 +25,25 @@ This article shows the work required to manage business processes using Workflow
 
 <!-- /TOC -->
 
-## Symfony integration with Workflower using PHPMentorsWorkflowerBundle
+## Symfony 使用 PHPMentorsWorkflowerBundle 来与 Workflower 进行交互
 
-[PHPMentorsWorkflowerBundle](https://github.com/phpmentors-jp/workflower-bundle) is an integration layer to use Workflower in Symfony applications and provides the following features:
+[PHPMentorsWorkflowerBundle](https://github.com/phpmentors-jp/workflower-bundle) 是在 Symfony 程序里使用的 Workflower 的交互层，提供了以下特性：
 
-- Automatically generates DI container services according to workflows and automatically injects service objects using the `phpmentors_workflower.process_aware` tags
-- Allocates tasks to participants and controls access for participants using the Symfony security system
-- Provides transparent serialization/deserialization for entities using [Doctrine ORM](http://www.doctrine-project.org/projects/orm.html)
-- Supports multiple workflow contexts (directories where BPMN files are stored)
+- 根据工作流自动生成 DI 容器服务并使用 `phpmentors_workflower.process_aware` 标签自动注射服务对象
+- 分配任务相关部分，并使用 Symfony 安全系统控制相关部分的准入。
+- 使用 [Doctrine ORM](http://www.doctrine-project.org/projects/orm.html) 为数据实体提供透明的序列/反序列
+- 支持多工作流上下文 (也就是 BPMN 文件的存储目录)
 
-## Installing Workflower and PHPMentorsWorkflowerBundle
+## 安装 Workflower 和 PHPMentorsWorkflowerBundle
 
-First, we will use Composer to install Workflower and PHPMentorsWorkflowerBundle as project dependent packages:
+首先，我们将使用 Composer 来安装 Workflower 和 PHPMentorsWorkflowerBundle 作为项目依赖包:
 
 ```console
 $ composer require phpmentors/workflower "1.3.*"
 $ composer require phpmentors/workflower-bundle "1.3.*"
 ```
 
-Second, change `Appkernel` to enable `PHPMentorsWorkflowerBundle`:
+第二，修改 `Appkernel` 来开启 `PHPMentorsWorkflowerBundle`:
 
 ```php
 // app/AppKernel.php
@@ -64,9 +64,9 @@ class AppKernel extends Kernel
 }
 ```
 
-## Configuraring PHPMentorsWorkflowerBundle
+## 配置 PHPMentorsWorkflowerBundle
 
-Next, configure `PHPMentorsWorkflowerBundle`. An example is shown below:
+接下来，配置 `PHPMentorsWorkflowerBundle`。下边展示一个示例:
 
 ```yaml
 # app/config/config.yml
@@ -82,29 +82,29 @@ phpmentors_workflower:
 # ...
 ```
 
-- `serializer_service` - Specify the ID of the DI container service to be used for serializing `PHPMentors\Workflower\Workflow\Workflow` objects that are instances of workflows. `PHPMentors\Workflower\Persistence\WorkflowSerializerInterface` implementation is expected for the specified service. The default is `phpmentors_workflower.php_workflow_serializer`. You can also use `phpmentors_workflower.base64_php_workflow_serializer` to encode/decode serialized objects with MIME base64.
-- `workflow_contexts` - Specify `definition_dir` (the directory where the BPMN files are stored) for each workflow context ID.
+- `serializer_service` - 设定这个 DI 容器服务的 ID 来序列化工作流的实例 `PHPMentors\Workflower\Workflow\Workflow` 对象。  `PHPMentors\Workflower\Persistence\WorkflowSerializerInterface` 的实例已经为特定的服务所预期。默认是`phpmentors_workflower.php_workflow_serializer`。你也可以使用 `phpmentors_workflower.base64_php_workflow_serializer` 以 MIME base64 来 encode/decode 已序列化的对象。
+- `workflow_contexts` - 为每个工作流上下文 ID 设定 `definition_dir` (用来存储 BPMN 文件的目录)。
 
-## Designing workflows with BPMN
+## 以 BPMN 设计工作流
 
-Define a workflow to work with Workflower using an editor supporting BPMN 2.0. Initially it is better to define a workflow consisting only of start events, tasks, and end events, and then designs and defines the entire workflow once if you can see to work the workflow from start to finish. The name of this BPMN file is used as `the workflow ID`. Save it as a name like `LoanRequestProcess.bpmn`. The conditional expression of the sequence flow used for branching is evaluated as an expression of [the Symfony ExpressionLanguage component](http://symfony.com/doc/3.1/components/expression_language.html). Note that the sequence flow evaluation order is undefined, so it is necessary to set conditional expressions consistent with other branch destinations. In the conditional expression, you can use associative array keys returned from `PHPMentors\Workflower\Process\ProcessContextInterface::getProcessData()`.
+定义一个工作流来与 Workflower 一起工作，可以使用支持 BPMN 2.0 的编辑器。最初最好定义一个只包含开始事件、任务和结束事件的工作流，然后看到这个工作流从始至终工作正常再设计和定义整个工作流。BPMN 文件 的名称用来作为 `the workflow ID` 。以类似 `LoanRequestProcess.bpmn` 这样 的名称保存它。分支的次序流程的条件表达将使用 [the Symfony ExpressionLanguage 组件](http://symfony.com/doc/3.1/components/expression_language.html). 注意次序流程评估顺序还没定义，所以必须设定与其他分支目的地一致的条件表达式。在条件表达中，你可以使用从 `PHPMentors\Workflower\Process\ProcessContextInterface::getProcessData()`返回的关联数组键。
 
-The screenshot below is from [BPMN2 Modeler](https://www.eclipse.org/bpmn2-modeler/), a BPMN editor available in [Eclipse](https://eclipse.org/):
+下边的截图是 [BPMN2 Modeler](https://www.eclipse.org/bpmn2-modeler/), 一个基于 [Eclipse](https://eclipse.org/) 的 BPMN 编辑器:
 
 ![Editing a BPMN 2.0 model by BPMN2 Modeler](https://cloud.githubusercontent.com/assets/52985/20619334/57813132-b337-11e6-80dd-36e1c873eb81.png)
 
-### Workflow elements supported by Workflower
+### 被 Workflower 支持的工作流组件
 
-Workflower supports the following BPMN 2.0 workflow elements:
+Workflower 支持下边的 BPMN 2.0 工作流元素:
 
-- Connecting objects
-    - Sequence flows
-- Flow objects
-    - Activities
-        - Tasks
-        - Service tasks
-        - Send tasks
-    - Events
+- 连接对象
+    - 顺序流
+- 流对象
+    - 活动
+        - 任务
+        - 服务任务
+        - 发送任务
+    - Events
         - Start events
         - End events
     - Gateways
